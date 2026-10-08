@@ -1,41 +1,110 @@
-# Campus Marketplace - Frontend
+# Campus Marketplace - Backend
 
-Campus Marketplace is a React-based student-to-student marketplace that allows students to discover, buy, and sell items within their campus community.
+Campus Marketplace Backend is a Spring Boot REST API that powers a student-to-student marketplace. It provides authentication, listing management, wishlist functionality, seller inquiries, image upload handling, and Google Books API integration.
 
 ## Project Overview
 
-The frontend is a responsive Single Page Application built using React and Vite. It provides the user interface for user authentication, browsing listings, creating listings, uploading product images, managing wishlists, and communicating with sellers.
+Campus Marketplace is designed to help students buy and sell items within their campus community.
 
-The frontend communicates with a Java Spring Boot REST API deployed separately on Render.
+The backend manages:
 
-## Features
+- User registration and login
+- JWT-based authentication
+- Marketplace listings
+- Product categories
+- Wishlist management
+- Seller inquiries
+- Inquiry replies
+- Product image uploads
+- Google Books API integration
+- MySQL database operations
+- REST API communication with the React frontend
 
-### User Authentication
+## Technology Stack
+
+- Java 21
+- Spring Boot 3.3
+- Spring Web
+- Spring Data JPA
+- Hibernate
+- Spring Security
+- JWT
+- MySQL
+- Maven
+- Google Books API
+- Docker
+- Render
+- Aiven MySQL
+
+## Backend Architecture
+
+React Frontend
+       |
+       | REST API
+       v
+Controller Layer
+       |
+       v
+Service Layer
+       |
+       v
+Repository Layer
+       |
+       v
+JPA / Hibernate
+       |
+       v
+Aiven MySQL
+
+The backend follows a layered architecture.
+
+### Controller Layer
+
+Handles HTTP requests and responses and exposes REST API endpoints.
+
+### Service Layer
+
+Contains business logic and coordinates operations between controllers and repositories.
+
+### Repository Layer
+
+Uses Spring Data JPA to communicate with the MySQL database.
+
+### Entity Layer
+
+Defines the application's database entities and relationships.
+
+### DTO Layer
+
+Used where required to transfer data between the backend and frontend.
+
+## Main Features
+
+### Authentication
 
 - User registration
 - User login
+- JWT token generation
 - JWT-based authentication
-- Protected routes
-- Logout
-- User session handling
+- Protected API endpoints
+- User logout/session handling
 
 ### Marketplace Listings
 
 Users can:
 
-- Browse available listings
-- View product details
-- Search products
-- Browse products by category
-- Create new listings
-- Edit their own listings
-- Delete their own listings
+- Create listings
+- View listings
+- Update listings
+- Delete listings
+- Browse listings by category
+- Store product descriptions
+- Store price and condition
 - Upload product images
-- View product price and condition
 
 ### Product Categories
 
-The marketplace includes:
+The marketplace supports:
 
 - Electronics
 - Books
@@ -47,263 +116,284 @@ The marketplace includes:
 
 ### Wishlist
 
+Authenticated users can:
+
+- Add listings to their wishlist
+- Remove listings from their wishlist
+- View saved listings
+
+### Inquiries
+
 Users can:
 
-- Add products to their wishlist
-- Remove products from their wishlist
-- View their saved products
+- Send inquiries about listings
+- View inquiries
+- Reply to inquiries
 
-### Seller Inquiries
+This provides a basic communication mechanism between buyers and sellers.
 
-Users can send inquiries about listings and communicate with sellers through the inquiry and reply system.
+### Google Books API
 
-### Book Integration
+The application supports book-related functionality through the Google Books API.
 
-The application supports book-related functionality through the Google Books API, integrated through the backend.
+Google Books API endpoint:
 
-## Technology Stack
+https://www.googleapis.com/books/v1/volumes
 
-- React
-- Vite
-- JavaScript
-- React Router
-- Axios / Fetch API
-- HTML5
-- CSS
-- Bootstrap
-- Render
+The API key is provided through an environment variable and is not stored directly in the source code.
 
-## Frontend Architecture
+## Database
 
-User
-  |
-  v
-React Frontend
-  |
-  +-- Pages
-  +-- Components
-  +-- React Router
-  +-- API Services
-  |
-  v
-Spring Boot REST API
-  |
-  v
-Aiven MySQL
+The production database uses MySQL hosted on Aiven.
 
-The frontend is responsible for:
+Application tables include:
 
-- User interface
-- Client-side routing
-- Form handling
-- API communication
-- Authentication state
-- Listing display
-- Product image display
-- Wishlist interactions
-- Inquiry functionality
+- users
+- listings
+- wishlists
+- inquiries
+- inquiry_replies
 
-The backend is responsible for:
+The application uses JPA and Hibernate for object-relational mapping and database access.
 
-- Business logic
-- JWT authentication
-- Database operations
-- Image upload processing
-- Google Books API integration
+## Database Configuration
 
-## Project Structure
-
-campus-marketplace-frontend/
-│
-├── public/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── services/
-│   ├── assets/
-│   ├── App.jsx
-│   └── main.jsx
-│
-├── .env
-├── .gitignore
-├── index.html
-├── package.json
-├── vite.config.js
-└── README.md
-
-The exact folder structure may vary depending on the current implementation.
-
-## Backend API Configuration
-
-The frontend uses the VITE_API_URL environment variable to communicate with the Spring Boot backend.
-
-### Local Development
-
-Create a .env file in the root of the frontend project:
-
-VITE_API_URL=http://localhost:8080
-
-The application reads this variable using:
-
-const API_URL = import.meta.env.VITE_API_URL;
+The application uses environment variables for the production database connection.
 
 Example:
 
-fetch(`${API_URL}/api/listings`);
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
 
-### Production
-
-The production value is configured in Render:
-
-VITE_API_URL=https://campus-market-place-2-1.onrender.com
-
-The backend URL should not be hardcoded throughout the application.
+The production database credentials are not stored in the GitHub repository.
 
 ## Environment Variables
 
-The frontend requires:
+The backend requires the following environment variables:
 
-VITE_API_URL
+DB_URL
+DB_USERNAME
+DB_PASSWORD
+JWT_SECRET
+JWT_EXPIRATION_MS
+ALLOWED_ORIGINS
+GOOGLE_BOOKS_API_KEY
+EXTERNAL_BOOKS_API_URL
+UPLOAD_DIR
 
-Local example:
+Example configuration:
 
-VITE_API_URL=http://localhost:8080
+DB_URL=jdbc:mysql://<AIVEN_HOST>:<PORT>/defaultdb?sslMode=REQUIRED
+DB_USERNAME=avnadmin
+DB_PASSWORD=<your-password>
+JWT_SECRET=<your-jwt-secret>
+JWT_EXPIRATION_MS=86400000
+ALLOWED_ORIGINS=<your-frontend-url>
+GOOGLE_BOOKS_API_KEY=<your-google-books-api-key>
+EXTERNAL_BOOKS_API_URL=https://www.googleapis.com/books/v1/volumes
+UPLOAD_DIR=./uploads
 
-Production example:
+Never commit real passwords, JWT secrets, database credentials, or private API keys to GitHub.
 
-VITE_API_URL=https://campus-market-place-2-1.onrender.com
-
-Do not store database passwords, JWT secrets, or private API keys in the frontend.
-
-## Installation
+## Local Setup
 
 ### 1. Clone the Repository
 
-git clone <YOUR-FRONTEND-REPOSITORY-URL>
+git clone <YOUR-BACKEND-REPOSITORY-URL>
 
-cd campus-marketplace-frontend
+cd campus-marketplace-backend
 
-### 2. Install Dependencies
+### 2. Configure Environment Variables
 
-npm install
+Configure the required environment variables for your local development environment.
 
-### 3. Configure Environment Variables
+For local development, you can use a local MySQL database or a development database.
 
-Create a .env file:
+### 3. Build the Project
 
-VITE_API_URL=http://localhost:8080
+Using Maven:
 
-### 4. Start the Development Server
+mvn clean package
 
-npm run dev
+or:
 
-The application will normally be available at:
+./mvnw clean package
 
-http://localhost:5173
+### 4. Run the Application
 
-## Production Build
+./mvnw spring-boot:run
 
-Create a production build:
+The backend normally runs on:
 
-npm run build
+http://localhost:8080
 
-The production files are generated in:
+## Health Check
 
-dist/
+The backend provides a public health endpoint:
 
-To preview the production build:
+GET /api/health
 
-npm run preview
+Example response:
 
-## Render Deployment
+{
+  "status": "UP"
+}
 
-The frontend is deployed as a Render Static Site.
+This endpoint can be used to verify that the Spring Boot service is running.
 
-### Render Configuration
+## API Documentation
+
+Springdoc OpenAPI is configured for API documentation.
+
+API documentation endpoint:
+
+/api-docs
+
+Swagger UI:
+
+/swagger-ui.html
+
+When running locally:
+
+http://localhost:8080/swagger-ui.html
+
+## CORS
+
+The backend supports configurable CORS using the ALLOWED_ORIGINS environment variable.
+
+Example:
+
+ALLOWED_ORIGINS=https://your-frontend.onrender.com
+
+For local development:
+
+ALLOWED_ORIGINS=http://localhost:5173
+
+This allows the React frontend to communicate with the Spring Boot backend.
+
+## Image Uploads
+
+The backend accepts product image uploads using multipart requests.
+
+The application stores an image reference for each listing and returns the information required by the frontend to display the uploaded image.
+
+The current upload configuration uses:
+
+UPLOAD_DIR=./uploads
+
+For larger production deployments, persistent cloud object storage such as Amazon S3 or Cloudinary can be used instead of relying on local server storage.
+
+## Security
+
+The backend uses:
+
+- Spring Security
+- JWT authentication
+- Environment variables for secrets
+- Configurable CORS
+- Protected API endpoints
+- Externalized database credentials
+- Externalized Google Books API credentials
+
+Sensitive values are never required to be stored in the GitHub repository.
+
+## Deployment
+
+The Spring Boot backend is deployed on Render as a Docker-based Web Service.
+
+Deployment architecture:
+
+GitHub
+   |
+   v
+Render Web Service
+   |
+   v
+Spring Boot Application
+   |
+   v
+Aiven MySQL
+
+The backend receives its production configuration through Render environment variables.
+
+## Production Backend
+
+Backend:
+
+https://campus-market-place-2-1.onrender.com
+
+Health Check:
+
+https://campus-market-place-2-1.onrender.com/api/health
+
+## Docker
+
+The backend is packaged and deployed using Docker.
+
+The Docker build process:
+
+1. Builds the Spring Boot application using Maven.
+2. Creates the application JAR.
+3. Runs the application using a Java runtime image.
+4. Exposes the port provided by the Render environment.
+
+## Render Configuration
+
+The backend is deployed as a Render Web Service.
+
+Typical configuration:
 
 Repository:
-GitHub frontend repository
+GitHub backend repository
 
 Branch:
 main
 
-Root Directory:
-Leave empty
+Build:
+Docker
 
-Build Command:
-npm install && npm run build
+Environment:
+Production
 
-Publish Directory:
-dist
+Required environment variables are configured in the Render dashboard.
 
-Auto Deploy:
-Enabled
+The application uses the Render-provided PORT environment variable:
 
-### Render Environment Variable
+server.port=${PORT:8080}
 
-Key:
+## API Areas
 
-VITE_API_URL
-
-Value:
-
-https://campus-market-place-2-1.onrender.com
-
-## React Router Configuration
-
-The application uses React Router for client-side navigation.
-
-Examples of routes:
-
-/login
-/register
-/products
-/profile
-
-Because the application is a Single Page Application, Render requires a rewrite rule so that refreshing a route does not return a 404 error.
-
-### Render Rewrite Rule
-
-Action:
-Rewrite
-
-Source:
-/*
-
-Destination:
-/index.html
-
-This allows React Router to handle routes such as /login, /register, /products, and /profile when users refresh the browser.
-
-## Image Upload Handling
-
-Product images are uploaded through the backend API.
-
-The frontend:
-
-1. Allows the user to select an image.
-2. Displays the selected image when required.
-3. Sends the image to the backend using a multipart request.
-4. Receives the stored image reference from the backend.
-5. Displays the image associated with the correct listing.
-
-The frontend should use the image URL returned by the backend instead of hardcoded or dummy image URLs.
-
-## API Communication
-
-The frontend communicates with the backend through REST APIs.
-
-Main API areas include:
+Main API functionality includes:
 
 /api/auth
+
 /api/listings
+
 /api/wishlists
+
 /api/inquiries
+
 /api/health
 
-The exact endpoints depend on the backend implementation.
+/api-docs
 
-## Deployment Architecture
+/swagger-ui.html
+
+The exact API endpoints depend on the current backend implementation.
+
+## Development Workflow
+
+The recommended workflow is:
+
+1. Make backend changes locally.
+2. Test the application.
+3. Commit changes to Git.
+4. Push changes to GitHub.
+5. Render automatically builds and deploys the updated backend.
+6. Verify the production health endpoint and application functionality.
+
+## Production Architecture
 
 User
   |
@@ -323,44 +413,20 @@ Frontend  -> Render Static Site
 Backend   -> Render Web Service
 Database  -> Aiven MySQL
 
-## Live Application
-
-Frontend:
-
-<YOUR-FRONTEND-URL>
-
-Backend:
-
-https://campus-market-place-2-1.onrender.com
-
-Backend Health Check:
-
-https://campus-market-place-2-1.onrender.com/api/health
-
-## Security
-
-The frontend does not contain:
-
-- Database passwords
-- JWT signing secrets
-- Private database credentials
-
-Sensitive backend configuration is handled through environment variables on the backend.
-
-Only values intended for client-side use should be exposed through VITE_ environment variables.
-
 ## Future Improvements
 
-- Advanced product search
-- Pagination
-- Advanced filtering
-- Product recommendations
-- Notifications
-- Seller ratings and reviews
-- Image optimization
+Possible future improvements include:
+
 - Persistent cloud image storage
-- Progressive Web App support
-- Improved accessibility
+- Advanced search and filtering
+- Pagination
+- Seller ratings and reviews
+- Email notifications
+- Admin moderation
+- Automated tests
+- CI/CD pipeline improvements
+- Better image optimization
+- Improved monitoring and logging
 
 ## Author
 
