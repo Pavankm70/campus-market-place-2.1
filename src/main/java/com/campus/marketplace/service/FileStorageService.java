@@ -46,8 +46,16 @@ public class FileStorageService {
         // Validate extension
         String extension = "";
         int extIndex = originalFilename.lastIndexOf(".");
-        if (extIndex > 0) {
+        if (extIndex >= 0) {
             extension = originalFilename.substring(extIndex).toLowerCase();
+        }
+
+        if (extension.isEmpty() && file.getContentType() != null) {
+            String ct = file.getContentType().toLowerCase();
+            if (ct.contains("jpeg") || ct.contains("jpg")) extension = ".jpg";
+            else if (ct.contains("png")) extension = ".png";
+            else if (ct.contains("webp")) extension = ".webp";
+            else if (ct.contains("gif")) extension = ".gif";
         }
 
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
@@ -63,9 +71,14 @@ public class FileStorageService {
             throw new BadRequestException("Cannot store file outside current directory.");
         }
 
-        try (InputStream inputStream = file.getInputStream()) {
-            Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-            return "/uploads/" + storedFileName;
+        try {
+            if (!Files.exists(this.rootLocation)) {
+                Files.createDirectories(this.rootLocation);
+            }
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                return "/uploads/" + storedFileName;
+            }
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file " + originalFilename, e);
         }

@@ -77,7 +77,7 @@ public class SecurityConfig {
                         // Public External Book Lookup
                         .requestMatchers("/api/books/**").permitAll()
                         // Uploaded static assets
-                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/uploads/**", "/api/uploads/**").permitAll()
                         // Swagger & OpenAPI documentation
                         .requestMatchers(
                                 "/swagger-ui/**",
