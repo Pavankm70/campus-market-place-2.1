@@ -2,6 +2,8 @@ package com.campus.marketplace.service;
 
 import com.campus.marketplace.exception.BadRequestException;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -19,6 +21,8 @@ import java.util.UUID;
 
 @Service
 public class FileStorageService {
+
+    private static final Logger log = LoggerFactory.getLogger(FileStorageService.class);
 
     @Value("${app.upload.dir:./uploads}")
     private String uploadDir;
@@ -77,9 +81,13 @@ public class FileStorageService {
             }
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-                return "/uploads/" + storedFileName;
+                String relativeUrl = "/uploads/" + storedFileName;
+                log.info("[STORAGE-STORED] originalFilename='{}', generatedFilename='{}', contentType='{}', storedPath='{}', returnedUrl='{}'",
+                        originalFilename, storedFileName, file.getContentType(), destinationFile, relativeUrl);
+                return relativeUrl;
             }
         } catch (IOException e) {
+            log.error("[STORAGE-ERROR] Failed to store file originalFilename='{}': {}", originalFilename, e.getMessage());
             throw new RuntimeException("Failed to store file " + originalFilename, e);
         }
     }

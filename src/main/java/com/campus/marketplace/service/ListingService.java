@@ -9,6 +9,8 @@ import com.campus.marketplace.entity.User;
 import com.campus.marketplace.exception.ForbiddenException;
 import com.campus.marketplace.exception.ResourceNotFoundException;
 import com.campus.marketplace.repository.ListingRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ListingService {
+
+    private static final Logger log = LoggerFactory.getLogger(ListingService.class);
 
     private final ListingRepository listingRepository;
     private final AuthService authService;
@@ -55,6 +59,8 @@ public class ListingService {
         listing.setSeller(currentUser);
 
         Listing saved = listingRepository.save(listing);
+        log.info("[LISTING-CREATED] id={}, title='{}', imageUrl='{}', sellerId={}",
+                saved.getId(), saved.getTitle(), saved.getImageUrl(), currentUser.getId());
         return mapToDto(saved);
     }
 
@@ -85,6 +91,8 @@ public class ListingService {
         }
 
         Listing updated = listingRepository.save(listing);
+        log.info("[LISTING-UPDATED] id={}, title='{}', imageUrl='{}', sellerId={}",
+                updated.getId(), updated.getTitle(), updated.getImageUrl(), currentUser.getId());
         return mapToDto(updated);
     }
 
