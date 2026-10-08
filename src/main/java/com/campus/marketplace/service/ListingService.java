@@ -106,10 +106,13 @@ public class ListingService {
             throw new ForbiddenException("You are not authorized to delete this listing. Only the verified seller (User ID: " + listing.getSeller().getId() + ") has permission.");
         }
 
-        // Clean up any saved wishlist items and inquiries for this listing
+        // Clean up any saved wishlist items for this listing
         wishlistRepository.deleteByListingId(id);
-        inquiryRepository.deleteByListingId(id);
 
+        // Delete listing: JPA cascade and orphanRemoval safely delete:
+        // 1. All inquiry replies belonging to this listing's inquiries
+        // 2. All inquiries belonging to this listing
+        // 3. The listing itself
         listingRepository.delete(listing);
     }
 
