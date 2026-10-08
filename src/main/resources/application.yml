@@ -9,9 +9,9 @@ spring:
     name: campus-marketplace
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/campus_marketplace?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -28,7 +28,7 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET:mySuperSecretJwtKeyThatIsAtLeast256BitsLongForRenderDeployment12345}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
   cors:
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,http://localhost:4173}
@@ -36,7 +36,7 @@ app:
     dir: ${UPLOAD_DIR:./uploads}
   external:
     google-books-api: ${EXTERNAL_BOOKS_API_URL:https://www.googleapis.com/books/v1/volumes}
-    google-books-key: ${GOOGLE_BOOKS_API_KEY}
+    google-books-key: ${GOOGLE_BOOKS_API_KEY:}
 
 springdoc:
   api-docs:
