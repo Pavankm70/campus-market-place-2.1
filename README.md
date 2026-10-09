@@ -1,3 +1,4 @@
+Note : backend takes time to start please wait 4–5 minutes of first request of login or register
 # Campus Marketplace - Backend
 
 Campus Marketplace Backend is a Spring Boot REST API that powers a student-to-student marketplace. It provides authentication, listing management, wishlist functionality, seller inquiries, image upload handling, and Google Books API integration.
