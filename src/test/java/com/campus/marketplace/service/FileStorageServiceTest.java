@@ -1,18 +1,22 @@
 package com.campus.marketplace.service;
 
-import org.junit.jupiter.api.AfterEach;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Uploader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.*;
 
 public class FileStorageServiceTest {
 
@@ -29,7 +33,7 @@ public class FileStorageServiceTest {
     }
 
     @Test
-    void testTwoDifferentImagesGetUniqueFilenamesAndDoNotOverwrite() throws IOException {
+    void testTwoDifferentImagesGetUniqueFilenamesAndDoNotOverwriteLocally() throws IOException {
         // Prepare two distinct image files
         byte[] imageAContent = "IMAGE_A_CONTENT_BYTES_TEST_12345".getBytes();
         byte[] imageBContent = "IMAGE_B_CONTENT_BYTES_DIFFERENT_67890".getBytes();
@@ -83,5 +87,58 @@ public class FileStorageServiceTest {
         String url2 = fileStorageService.storeFile(file2);
 
         assertNotEquals(url1, url2, "Two uploads with identical original filenames must still get different stored filenames");
+    }
+
+    @Test
+    void testCloudinaryUploadReturnsSecureHttpsUrlWithUniqueId() throws IOException {
+        Cloudinary mockCloudinary = mock(Cloudinary.class);
+        Uploader mockUploader = mock(Uploader.class);
+        when(mockCloudinary.uploader()).thenReturn(mockUploader);
+
+        when(mockUploader.upload(any(byte[].class), anyMap())).thenAnswer(invocation -> {
+            Map<?, ?> params = invocation.getArgument(1);
+            String publicId = (String) params.get("public_id");
+            String folder = (String) params.get("folder");
+            return Map.of(
+                    "secure_url", "https://res.cloudinary.com/test-cloud/image/upload/v123/" + folder + "/" + publicId + ".jpg",
+                    "public_id", folder + "/" + publicId
+            );
+        });
+
+        fileStorageService.setCloudinary(mockCloudinary);
+        assertTrue(fileStorageService.isCloudinaryActive());
+        assertEquals("Cloudinary", fileStorageService.getActiveProviderName());
+
+        MockMultipartFile fileA = new MockMultipartFile(
+                "file", "product_a.jpg", "image/jpeg", "PICTURE_A_BYTES".getBytes());
+        MockMultipartFile fileB = new MockMultipartFile(
+                "file", "product_b.jpg", "image/jpeg", "PICTURE_B_BYTES".getBytes());
+
+        String urlA = fileStorageService.storeFile(fileA);
+        String urlB = fileStorageService.storeFile(fileB);
+
+        assertNotNull(urlA);
+        assertNotNull(urlB);
+        assertTrue(urlA.startsWith("https://res.cloudinary.com/"), "Must return secure HTTPS Cloudinary URL");
+        assertTrue(urlB.startsWith("https://res.cloudinary.com/"), "Must return secure HTTPS Cloudinary URL");
+        assertNotEquals(urlA, urlB, "Product A and Product B must receive different Cloudinary URLs");
+
+        verify(mockUploader, times(2)).upload(any(byte[].class), anyMap());
+    }
+
+    @Test
+    void testCloudinaryUploadFailureThrowsDescriptiveException() throws IOException {
+        Cloudinary mockCloudinary = mock(Cloudinary.class);
+        Uploader mockUploader = mock(Uploader.class);
+        when(mockCloudinary.uploader()).thenReturn(mockUploader);
+        when(mockUploader.upload(any(byte[].class), anyMap())).thenThrow(new IOException("Network timeout"));
+
+        fileStorageService.setCloudinary(mockCloudinary);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "product.jpg", "image/jpeg", "TEST_BYTES".getBytes());
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> fileStorageService.storeFile(file));
+        assertTrue(ex.getMessage().contains("Failed to upload image to persistent cloud storage"));
     }
 }

@@ -34,6 +34,11 @@ app:
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,http://localhost:4173}
   upload:
     dir: ${UPLOAD_DIR:./uploads}
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
+    url: ${CLOUDINARY_URL:}
   external:
     google-books-api: ${EXTERNAL_BOOKS_API_URL:https://www.googleapis.com/books/v1/volumes}
     google-books-key: ${GOOGLE_BOOKS_API_KEY:}

@@ -34,7 +34,8 @@ public class FileUploadController {
         log.info("[UPLOAD-REQUEST] originalFilename='{}', contentType='{}', size={} bytes",
                 file.getOriginalFilename(), file.getContentType(), file.getSize());
         String fileUrl = fileStorageService.storeFile(file);
-        log.info("[UPLOAD-RESPONSE] generatedUrl='{}'", fileUrl);
+        log.info("[UPLOAD-RESPONSE] provider='{}', returnedUrl='{}'",
+                fileStorageService.getActiveProviderName(), fileUrl);
         return ResponseEntity.ok(Map.of("url", fileUrl));
     }
 }

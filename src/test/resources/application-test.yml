@@ -21,5 +21,10 @@ app:
     allowed-origins: http://localhost:5173
   upload:
     dir: ./target/test-uploads
+  cloudinary:
+    cloud-name: ""
+    api-key: ""
+    api-secret: ""
+    url: ""
   external:
     google-books-api: https://www.googleapis.com/books/v1/volumes
